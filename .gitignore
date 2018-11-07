@@ -2,3 +2,4 @@ __pycache__/
 pmemo_dataset/
 .vscode/
 __MACOSX/
+.DS_Store
