@@ -6,8 +6,8 @@ The repo will not include the dataset.
 Under construction
 - [x] dataset
 - [x] data loader
-- [] model
-- [] trainer
-- [] classifier
+- [ ] model
+- [ ] trainer
+- [ ] classifier
 
 This is also the first repo, intended to improve coding skills as well.
