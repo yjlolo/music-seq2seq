@@ -1,0 +1,38 @@
+{   
+    "dataset": {
+        "type": "PMEmodata",
+        "args": {
+            "path_to_dataset": "../pmemo_dataset/PMEmo",
+            "load_transformed": false
+        }
+    },
+    "transform1": {
+        "type": "AudioRead",
+        "args": {
+            "sr": 22050
+        }
+    },
+    "transform2": {
+        "type": "Zscore",
+        "args": {
+            "divide_sigma": false
+        }
+    },
+    "transform3": {
+        "type": "Spectrogram",
+        "args": {
+            "n_fft": 2048,
+            "hop_size": 1024,
+            "n_band": 320,
+            "spec_type": "melspec"
+        }
+    },
+    "transform4": {
+        "type": "TransposeNumpy"
+    },
+    "transform5": {
+        "type": "ToTensor"
+    },
+    "save_dir": "../pmemo_dataset/PMEmo/",
+    "save_subdir": "Spec"
+}
