@@ -3,7 +3,7 @@ import librosa
 import torch
 
 
-class AudioRead(object):
+class AudioRead():
     def __init__(self, sr=22050, offset=0.0, duration=None):
         self.sr = sr
         self.offset = offset
@@ -16,7 +16,7 @@ class AudioRead(object):
         return y
 
 
-class Zscore(object):
+class Zscore():
     def __init__(self, divide_sigma=True):
         self.divide_sigma = divide_sigma
 
@@ -39,7 +39,7 @@ def zscore(x, divide_sigma=True):
     return x
 
 
-class Spectrogram(object):
+class Spectrogram():
     def __init__(self, sr=22050, n_fft=1024, hop_size=160, n_band=128,
                  spec_type='melspec'):
         self.sr = sr
@@ -70,20 +70,20 @@ def spectrogram(x, sr, n_fft, hop_size, n_band, spec_type='melspec'):
     return S
 
 
-class TransposeNumpy(object):
+class TransposeNumpy():
     def __call__(self, x):
 
         return x.T
 
 
-class ToTensor(object):
+class ToTensor():
     def __call__(self, x):
         y = torch.from_numpy(x).type('torch.FloatTensor')
 
         return y
 
 
-class LoadTensor(object):
+class LoadTensor():
     def __call__(self, x):
 
         return torch.load(x)

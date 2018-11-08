@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 
-class PadCollate(object):
+class PadCollate():
     """
     a variant of callate_fn that pads according to the longest sequence in
     a batch of sequences
