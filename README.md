@@ -6,7 +6,9 @@ The repo will not include the dataset.
 Under construction
 - [x] dataset
 - [x] data loader
-- [ ] model
+- [x] model
+    - [ ] attention
+    - [ ] regressive inference 
 - [ ] trainer
 - [ ] classifier
 
