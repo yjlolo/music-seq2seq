@@ -65,7 +65,7 @@
     "loss2": {
         "type": "Emo_loss",
         "args": {
-            "effect_epoch": 1,
+            "effect_epoch": 20000,
             "metric": "euclidean"
         }
     },

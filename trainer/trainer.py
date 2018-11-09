@@ -71,7 +71,7 @@ class Trainer(BaseTrainer):
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
-            self.writer.add_scalar('loss', loss.item())
+            #self.writer.add_scalar('batch_loss', loss.item())
             total_recon_loss += recon_loss.item()
             total_emo_loss += emo_loss.item()
             total_loss += loss.item()
@@ -91,14 +91,15 @@ class Trainer(BaseTrainer):
             'time': time.time() - epoch_start_time
         }
 
+        self.writer.add_scalar('epoch_loss', log['loss'])
+        self.writer.add_scalar('recon_loss', log['recon_loss'])
+        self.writer.add_scalar('emo_loss', log['emo_loss'])
+
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
 
-        self.writer.add_scalar('loss', log['loss'])
-        self.writer.add_scalar('recon_loss', log['recon_loss'])
-        self.writer.add_scalar('emo_loss', log['emo_loss'])
-        self.writer.add_scalar('val_loss', log['val_loss'])
+        self.writer.add_scalar('val_epoch_loss', log['val_loss'])
         self.writer.add_scalar('val_recon_loss', log['val_recon_loss'])
         self.writer.add_scalar('val_emo_loss', log['val_emo_loss'])
 
@@ -147,7 +148,7 @@ class Trainer(BaseTrainer):
                 loss = recon_loss + emo_loss
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
-                self.writer.add_scalar('loss', loss.item())
+                #self.writer.add_scalar('loss', loss.item())
                 total_recon_loss += recon_loss.item()
                 total_emo_loss += emo_loss.item()
                 total_val_loss += loss.item()
