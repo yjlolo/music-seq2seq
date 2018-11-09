@@ -10,7 +10,7 @@ Under construction
     - [ ] attention
     - [ ] regressive inference 
 - [x] trainer
-    - [ ] extra loss constraints
+    - [x] extra loss constraints
 - [ ] classifier
 
 This is also the first repo, intended to improve coding skills as well.
