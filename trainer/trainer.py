@@ -62,7 +62,8 @@ class Trainer(BaseTrainer):
             recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
             # calculate additional constraints
             try:
-                emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2]).div(batch_size)
+                emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2], epoch)
+                emo_loss = emo_loss.div(batch_size)
             except:
                 emo_loss = torch.zeros(1).to(self.device)
             loss = recon_loss + emo_loss
@@ -93,6 +94,13 @@ class Trainer(BaseTrainer):
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
+
+        self.writer.add_scalar('loss', log['loss'])
+        self.writer.add_scalar('recon_loss', log['recon_loss'])
+        self.writer.add_scalar('emo_loss', log['emo_loss'])
+        self.writer.add_scalar('val_loss', log['val_loss'])
+        self.writer.add_scalar('val_recon_loss', log['val_recon_loss'])
+        self.writer.add_scalar('val_emo_loss', log['val_emo_loss'])
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
@@ -132,7 +140,8 @@ class Trainer(BaseTrainer):
                 recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
                 # calculate additional constraints
                 try:
-                    emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2]).div(batch_size)
+                    emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2], epoch)
+                    emo_loss = emo_loss.div(batch_size)
                 except:
                     emo_loss = torch.zeros(1).to(self.device)
                 loss = recon_loss + emo_loss

@@ -96,13 +96,12 @@ class BaseTrainer:
                         self.logger.info('    {:15s}: {}'.format(str(key), value))
 
             # evaluate model performance according to configured metric, save best checkpoint as model_best
-            best = False
             if self.monitor_mode != 'off':
                 try:
                     if (self.monitor_mode == 'min' and log[self.monitor] < self.monitor_best) or\
                        (self.monitor_mode == 'max' and log[self.monitor] > self.monitor_best):
                         self.monitor_best = log[self.monitor]
-                        best = True
+                        self._save_checkpoint(epoch, save_best=True)
                         self.no_improve_count = 0
                     else:
                         if self.no_improve_count:
@@ -118,7 +117,7 @@ class BaseTrainer:
                             + "for performance monitoring. model_best checkpoint won\'t be updated."
                         self.logger.warning(msg)
             if epoch % self.save_freq == 0:
-                self._save_checkpoint(epoch, save_best=best)
+                self._save_checkpoint(epoch, save_best=False)
 
     def _train_epoch(self, epoch):
         """
@@ -144,10 +143,11 @@ class BaseTrainer:
             'monitor_best': self.monitor_best,
             'config': self.config
         }
-        filename = os.path.join(self.checkpoint_dir, 'checkpoint-epoch{}.pth'.format(epoch))
-        torch.save(state, filename)
-        self.logger.info("Saving checkpoint: {} ...".format(filename))
-        if save_best:
+        if not save_best:
+            filename = os.path.join(self.checkpoint_dir, 'checkpoint-epoch{}.pth'.format(epoch))
+            torch.save(state, filename)
+            self.logger.info("Saving checkpoint: {} ...".format(filename))
+        else:
             best_path = os.path.join(self.checkpoint_dir, 'model_best.pth')
             torch.save(state, best_path)
             self.logger.info("Saving current best: {} ...".format('model_best.pth'))
