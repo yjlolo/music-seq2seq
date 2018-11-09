@@ -29,11 +29,14 @@ if __name__ == '__main__':
                          validation_split=0.1, num_workers=0)
     print(dl.init_kwargs)
     val_dl = dl.split_validation()
+
     batch = next(iter(dl))
     val_batch = next(iter(val_dl))
+
     print("\nExample of training sample")
     print(batch[0], batch[1], batch[2], batch[3], batch[4])
     print(batch[0].size(), batch[4].size())
+
     print("\nExample of validation sample")
     print(val_batch[0], val_batch[1], val_batch[2], val_batch[3], val_batch[4])
     print(val_batch[0].size(), val_batch[4].size())

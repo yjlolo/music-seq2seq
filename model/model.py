@@ -5,7 +5,7 @@ from base import BaseRNN, BaseModel
 from util import utils
 
 
-class EncoderRNN(BaseRNN, BaseModel):
+class EncoderRNN(BaseRNN):
     def __init__(self, input_size, hidden_size, n_layers=1, rnn_cell='gru',
                  input_dropout_p=0, dropout_p=0, variable_lengths=False):
         super(EncoderRNN, self).__init__(input_size, hidden_size, n_layers, rnn_cell, input_dropout_p, dropout_p)

@@ -6,7 +6,7 @@ import torch
 from torchvision import transforms
 import dataset.datasets as module_dataset
 import dataset.transformers as module_transform
-from util import get_instance, save_json
+from util import get_instance, save_json, ensure_dir
 
 
 def main(config):
@@ -20,8 +20,7 @@ def main(config):
 
     save_path = os.path.join(config['save_dir'], config['save_subdir'])
 
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+    ensure_dir(save_path)
 
     config['dataset']['args'].pop('transform', None)
     save_json(config, os.path.join(save_path, 'transform_config.json'))

@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 
@@ -13,9 +14,14 @@ def get_instance(module, name, config, *args):
         return getattr(module, config[name]['type'])(*args)
 
 
-def save_json(x, fname):
+def save_json(x, fname, if_sort_key=False, n_indent=None):
     with open(fname, 'w') as outfile:
-        json.dump(x, outfile)
+        json.dump(x, outfile, sort_keys=if_sort_key, indent=n_indent)
+
+
+def ensure_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 class Logger:

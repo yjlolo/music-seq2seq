@@ -1,0 +1,75 @@
+{
+    "name": "PMEmo_GRUseq2seqAE",
+    "n_gpu": 1,
+
+    "arch": {
+        "type": "Seq2seq"
+    },
+
+    "model_compose": [
+        "encoder", "decoder"
+    ],
+
+    "encoder": {
+        "type": "EncoderRNN",
+        "args": {
+            "input_size": 320,
+            "hidden_size": 128,
+            "n_layers": 2,
+            "rnn_cell": "gru",
+            "input_dropout_p": 0,
+            "dropout_p": 0,
+            "variable_lengths": true
+        }
+    },
+
+    "decoder": {
+        "type": "DecoderRNN",
+        "args": {
+            "input_size": 320,
+            "hidden_size": 128,
+            "n_layers": 2,
+            "rnn_cell": "gru",
+            "input_dropout_p": 0,
+            "dropout_p": 0
+        }
+    },
+    
+    "data_loader": {
+        "type": "PMEmoDataLoader",
+        "args":{
+            "data_dir": "pmemo_dataset/PMEmo",
+            "batch_size": 16,
+            "shuffle": true,
+            "validation_split": 0.1,
+            "num_workers": 0
+        }
+    },
+
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+
+    "loss_compose": [
+        "mse_loss"
+    ],
+
+    "trainer": {
+        "epochs": 1000,
+        "save_dir": "saved/",
+        "save_freq": 50,
+        "verbosity": 1,
+        "monitor": "val_loss",
+        "monitor_mode": "min",
+        "early_stop": 10
+    },
+    "visualization":{
+        "tensorboardX": true,
+        "log_dir": "saved/runs"
+    }
+}

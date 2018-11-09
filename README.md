@@ -13,3 +13,4 @@ Under construction
 - [ ] classifier
 
 This is also the first repo, intended to improve coding skills as well.
+The structure and template are adapted from [Pytorch-template](https://github.com/victoresque/pytorch-template).
