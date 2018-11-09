@@ -25,7 +25,8 @@ def main(config, resume):
     config['arch'].pop('args', None)
 
     # get function handles of loss and metrics
-    loss = [getattr(module_loss, i) for i in config['loss_compose']][0]
+    #loss = [getattr(module_loss, i) for i in config['loss_compose']][0]
+    loss = {config[i]['type']: get_instance(module_loss, i, config) for i in config if 'loss' in i}
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())

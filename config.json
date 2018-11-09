@@ -37,7 +37,7 @@
     
     "data_loader": {
         "type": "PMEmoDataLoader",
-        "args":{
+        "args": {
             "data_dir": "pmemo_dataset/PMEmo",
             "batch_size": 16,
             "shuffle": true,
@@ -48,27 +48,30 @@
 
     "optimizer": {
         "type": "Adam",
-        "args":{
+        "args": {
             "lr": 0.001,
             "weight_decay": 0,
             "amsgrad": true
         }
     },
 
-    "loss_compose": [
-        "mse_loss"
-    ],
+    "loss1": {
+        "type": "MSE_loss",
+        "args": {
+            "reduction": "none"
+        }
+    },
 
     "trainer": {
         "epochs": 1000,
         "save_dir": "saved/",
-        "save_freq": 50,
+        "save_freq": 10,
         "verbosity": 1,
         "monitor": "val_loss",
         "monitor_mode": "min",
         "early_stop": 10
     },
-    "visualization":{
+    "visualization": {
         "tensorboardX": true,
         "log_dir": "saved/runs"
     }

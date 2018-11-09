@@ -10,9 +10,7 @@ from util import get_instance, save_json, ensure_dir
 
 
 def main(config):
-    list_transform = [i for i in config if 'transform' in i]
-    list_transform = [get_instance(module_transform, j, config)
-                      for j in list_transform]
+    list_transform = [get_instance(module_transform, i, config) for i in config if 'transform' in i]
     transform = transforms.Compose(list_transform)
     config['dataset']['args']['transform'] = transform
 

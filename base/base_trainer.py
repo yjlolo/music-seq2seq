@@ -103,6 +103,7 @@ class BaseTrainer:
                        (self.monitor_mode == 'max' and log[self.monitor] > self.monitor_best):
                         self.monitor_best = log[self.monitor]
                         best = True
+                        self.no_improve_count = 0
                     else:
                         if self.no_improve_count:
                             self.no_improve_count += 1

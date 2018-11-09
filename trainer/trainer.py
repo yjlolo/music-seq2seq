@@ -38,6 +38,8 @@ class Trainer(BaseTrainer):
 
         epoch_start_time = time.time()
         total_loss = 0
+        total_recon_loss = 0
+        total_emo_loss = 0
         for batch_idx, batch_d in enumerate(self.data_loader):
             # refer to data_loader/collates.py to see the five returned items
             x, y, seqlen, songid, mask = batch_d[0], batch_d[1], batch_d[2], batch_d[3], batch_d[4]
@@ -55,13 +57,22 @@ class Trainer(BaseTrainer):
             # model update
             self.optimizer.zero_grad()
             output, enc_outputs = self.model(input_var, target_var, seqlen)
-            loss = self.loss(output.contiguous().view(-1), input_var.view(-1)).mul(mask.view(-1)).sum()  # mask padded
-            loss = loss.div(eff_len).div(input_size)  # loss normalization to per frequency bin
+            # calculate reconstruction loss
+            recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1))
+            recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
+            # calculate additional constraints
+            try:
+                emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2]).div(batch_size)
+            except:
+                emo_loss = torch.zeros(1).to(self.device)
+            loss = recon_loss + emo_loss
             loss.backward()
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
+            total_recon_loss += recon_loss.item()
+            total_emo_loss += emo_loss.item()
             total_loss += loss.item()
 
             if self.verbosity >= 2 and batch_idx % self.log_step == 0:
@@ -74,6 +85,8 @@ class Trainer(BaseTrainer):
 
         log = {
             'loss': total_loss / len(self.data_loader),
+            'recon_loss': total_recon_loss / len(self.data_loader),
+            'emo_loss': total_emo_loss / len(self.data_loader),
             'time': time.time() - epoch_start_time
         }
 
@@ -97,6 +110,8 @@ class Trainer(BaseTrainer):
 
         epoch_start_time = time.time()
         total_val_loss = 0
+        total_recon_loss = 0
+        total_emo_loss = 0
         with torch.no_grad():
             for batch_idx, batch_d in enumerate(self.valid_data_loader):
                 x, y, seqlen, songid, mask = batch_d[0], batch_d[1], batch_d[2], batch_d[3], batch_d[4]
@@ -112,14 +127,25 @@ class Trainer(BaseTrainer):
                 target_var = torch.cat((sos, input_var), dim=1)  # only use teacher forcing currently
 
                 output, enc_outputs = self.model(input_var, target_var, seqlen)
-                loss = self.loss(output.contiguous().view(-1), input_var.view(-1)).mul(mask.view(-1)).sum()
-                loss = loss.div(eff_len).div(input_size)  # loss normalization to per frequency bin
+                # calculate reconstruction loss
+                recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1))
+                recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
+                # calculate additional constraints
+                try:
+                    emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2]).div(batch_size)
+                except:
+                    emo_loss = torch.zeros(1).to(self.device)
+                loss = recon_loss + emo_loss
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
+                total_recon_loss += recon_loss.item()
+                total_emo_loss += emo_loss.item()
                 total_val_loss += loss.item()
 
         return {
             'val_loss': total_val_loss / len(self.valid_data_loader),
+            'val_recon_loss': total_recon_loss / len(self.valid_data_loader),
+            'val_emo_loss': total_emo_loss / len(self.valid_data_loader),
             'val_time': time.time() - epoch_start_time
         }
