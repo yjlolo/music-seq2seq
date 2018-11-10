@@ -37,7 +37,8 @@ class BaseTrainer:
         assert self.monitor_mode in ['min', 'max', 'off']
         self.monitor_best = math.inf if self.monitor_mode == 'min' else -math.inf
         self.start_epoch = 1
-        self.no_improve_count = 0 if self.config['trainer']['early_stop'] else None
+        self.early_stop = self.config['trainer']['early_stop']
+        self.no_improve_count = 0 if self.early_stop else None
         self.start_save_best = self.config['trainer']['start_save_best']
 
         # setup directory for checkpoint saving
@@ -97,29 +98,26 @@ class BaseTrainer:
                         self.logger.info('    {:15s}: {}'.format(str(key), value))
 
             # evaluate model performance according to configured metric, save best checkpoint as model_best
-            if self.monitor_mode != 'off':
-                try:
-                    if (self.monitor_mode == 'min' and log[self.monitor] < self.monitor_best) or\
-                       (self.monitor_mode == 'max' and log[self.monitor] > self.monitor_best):
-                        if epoch >= self.start_save_best:
-                            self.monitor_best = log[self.monitor]
-                            self._save_checkpoint(epoch, save_best=True)
-                            self.no_improve_count = 0
-                        else:
-                            pass
-                    else:
-                        if self.no_improve_count:
-                            self.no_improve_count += 1
-                            if self.no_improve_count == self.early_stop:
-                                msg = "Metric named '{}' ".format(self.monitor)\
-                                    + "has not improved for {} epochs; stop training".format(self.early_stop)
-                                self.logger.info(msg)
-                                break
-                except KeyError:
-                    if epoch == 1:
-                        msg = "Warning: Can\'t recognize metric named '{}' ".format(self.monitor)\
-                            + "for performance monitoring. model_best checkpoint won\'t be updated."
-                        self.logger.warning(msg)
+            if epoch >= self.start_save_best and self.monitor_mode != 'off':
+                if (self.monitor_mode == 'min' and log[self.monitor] < self.monitor_best) or\
+                   (self.monitor_mode == 'max' and log[self.monitor] > self.monitor_best):
+                    # save best model
+                    self.monitor_best = log[self.monitor]
+                    self._save_checkpoint(epoch, save_best=True)
+                    # set no-improve counter to zero
+                    if self.early_stop:
+                        self.no_improve_count = 0
+                else:
+                    # accumulate no-improve counter
+                    if self.early_stop:
+                        self.no_improve_count += 1
+                        # break the training if the counter exceeds early stop
+                        if self.no_improve_count >= self.early_stop:
+                            msg = "Metric named '{}' ".format(self.monitor)\
+                                + "has not improved for {} epochs; stop training".format(self.early_stop)
+                            self.logger.info(msg)
+                            break
+
             if epoch % self.save_freq == 0:
                 self._save_checkpoint(epoch, save_best=False)
 
