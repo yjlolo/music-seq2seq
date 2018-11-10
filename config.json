@@ -58,15 +58,17 @@
     "loss1": {
         "type": "MSE_loss",
         "args": {
-            "reduction": "none"
+            "reduction": "none",
+            "effect_epoch": 50
         }
     },
 
     "loss2": {
         "type": "Emo_loss",
         "args": {
-            "effect_epoch": 20000,
-            "metric": "euclidean"
+            "effect_epoch": 1,
+            "metric": "euclidean",
+            "scale": 10
         }
     },
 
@@ -77,7 +79,8 @@
         "verbosity": 1,
         "monitor": "val_loss",
         "monitor_mode": "min",
-        "early_stop": 10
+        "early_stop": 10,
+        "start_save_best": 50
     },
     "visualization": {
         "tensorboardX": true,

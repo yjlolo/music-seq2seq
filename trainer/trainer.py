@@ -58,7 +58,7 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             output, enc_outputs = self.model(input_var, target_var, seqlen)
             # calculate reconstruction loss
-            recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1))
+            recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1), epoch)
             recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
             # calculate additional constraints
             try:
@@ -137,7 +137,7 @@ class Trainer(BaseTrainer):
 
                 output, enc_outputs = self.model(input_var, target_var, seqlen)
                 # calculate reconstruction loss
-                recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1))
+                recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1), epoch)
                 recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
                 # calculate additional constraints
                 try:

@@ -38,6 +38,7 @@ class BaseTrainer:
         self.monitor_best = math.inf if self.monitor_mode == 'min' else -math.inf
         self.start_epoch = 1
         self.no_improve_count = 0 if self.config['trainer']['early_stop'] else None
+        self.start_save_best = self.config['trainer']['start_save_best']
 
         # setup directory for checkpoint saving
         start_time = datetime.datetime.now().strftime('%m%d_%H%M%S')
@@ -100,9 +101,12 @@ class BaseTrainer:
                 try:
                     if (self.monitor_mode == 'min' and log[self.monitor] < self.monitor_best) or\
                        (self.monitor_mode == 'max' and log[self.monitor] > self.monitor_best):
-                        self.monitor_best = log[self.monitor]
-                        self._save_checkpoint(epoch, save_best=True)
-                        self.no_improve_count = 0
+                        if epoch >= self.start_save_best:
+                            self.monitor_best = log[self.monitor]
+                            self._save_checkpoint(epoch, save_best=True)
+                            self.no_improve_count = 0
+                        else:
+                            pass
                     else:
                         if self.no_improve_count:
                             self.no_improve_count += 1
