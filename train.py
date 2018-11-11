@@ -11,6 +11,7 @@ from util import Logger, get_instance
 
 
 def main(config, resume):
+    torch.manual_seed(0)
     train_logger = Logger()
 
     # setup data_loader instances

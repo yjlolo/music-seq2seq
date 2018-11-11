@@ -13,8 +13,8 @@
     "encoder": {
         "type": "EncoderRNN",
         "args": {
-            "input_size": 320,
-            "hidden_size": 128,
+            "input_size": 128,
+            "hidden_size": 256,
             "n_layers": 2,
             "rnn_cell": "gru",
             "input_dropout_p": 0,
@@ -26,8 +26,8 @@
     "decoder": {
         "type": "DecoderRNN",
         "args": {
-            "input_size": 320,
-            "hidden_size": 128,
+            "input_size": 128,
+            "hidden_size": 256,
             "n_layers": 2,
             "rnn_cell": "gru",
             "input_dropout_p": 0,
@@ -39,7 +39,7 @@
         "type": "PMEmoDataLoader",
         "args": {
             "data_dir": "pmemo_dataset/PMEmo",
-            "batch_size": 16,
+            "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 0
@@ -66,9 +66,9 @@
     "loss2": {
         "type": "Emo_loss",
         "args": {
-            "effect_epoch": 10000,
+            "effect_epoch": 1,
             "metric": "euclidean",
-            "scale": 1
+            "scale": 10
         }
     },
 
@@ -79,7 +79,7 @@
         "verbosity": 1,
         "monitor": "val_loss",
         "monitor_mode": "min",
-        "early_stop": 20,
+        "early_stop": 30,
         "start_save_best": 1
     },
     "visualization": {

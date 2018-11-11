@@ -23,7 +23,7 @@
         "args": {
             "n_fft": 2048,
             "hop_size": 1024,
-            "n_band": 320,
+            "n_band": 128,
             "spec_type": "melspec"
         }
     },

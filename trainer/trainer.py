@@ -46,19 +46,24 @@ class Trainer(BaseTrainer):
             batch_size = x.size(0)
             input_size = x.size(-1)
 
-            input_var = x.to(self.device)
+            x_np = np.flip(x.numpy(),0).copy()   #Reverse of copy of numpy array of given tensor
+
+            x_r = torch.from_numpy(x_np).to(self.device)
+
+            original_input = x.to(self.device)
+            input_var = x_r.to(self.device)
             centroids = y.type(input_var.type())  # used for loss constraints
             mask = mask.to(self.device)
             eff_len = torch.FloatTensor(seqlen).sum().to(self.device)  # used for loss normalization
 
             sos = torch.zeros(batch_size, 1, input_size).to(self.device)  # start-of-sequence dummy
-            target_var = torch.cat((sos, input_var), dim=1)  # only use teacher forcing currently
+            target_var = torch.cat((sos, original_input), dim=1)  # only use teacher forcing currently
 
             # model update
             self.optimizer.zero_grad()
             output, enc_outputs = self.model(input_var, target_var, seqlen)
             # calculate reconstruction loss
-            recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1), epoch)
+            recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), original_input.view(-1), epoch)
             recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
             # calculate additional constraints
             try:
@@ -126,18 +131,22 @@ class Trainer(BaseTrainer):
                 x, y, seqlen, songid, mask = batch_d[0], batch_d[1], batch_d[2], batch_d[3], batch_d[4]
                 batch_size = x.size(0)
                 input_size = x.size(-1)
+                original_input = x.to(self.device)
 
-                input_var = x.to(self.device)
+                x_np = np.flip(x.numpy(),0).copy()   #Reverse of copy of numpy array of given tensor
+                x_r = torch.from_numpy(x_np).to(self.device)
+
+                input_var = x_r.to(self.device)
                 centroids = y.type(input_var.type())  # used for loss constraints
                 mask = mask.to(self.device)
                 eff_len = torch.FloatTensor(seqlen).sum().to(self.device)  # used for loss normalization
 
                 sos = torch.zeros(batch_size, 1, input_size).to(self.device)  # start-of-sequence dummy
-                target_var = torch.cat((sos, input_var), dim=1)  # only use teacher forcing currently
+                target_var = torch.cat((sos, original_input), dim=1)  # only use teacher forcing currently
 
                 output, enc_outputs = self.model(input_var, target_var, seqlen)
                 # calculate reconstruction loss
-                recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), input_var.view(-1), epoch)
+                recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), original_input.view(-1), epoch)
                 recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
                 # calculate additional constraints
                 try:

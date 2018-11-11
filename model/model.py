@@ -34,7 +34,6 @@ class DecoderRNN(BaseRNN):
 
     def forward_step(self, input_var, hidden):
         input_var = self.input_dropout(input_var)
-
         output, hidden = self.rnn(input_var, hidden)
         output = self.out(output)
 
@@ -55,6 +54,7 @@ class DecoderRNN(BaseRNN):
 
         if use_teacher_forcing:
             decoder_input = inputs[:, :-1]
+
             decoder_output, decoder_hidden = self.forward_step(decoder_input, decoder_hidden)
         else:
             raise NotImplementedError()
