@@ -4,7 +4,6 @@ import argparse
 import torch
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
-#import model.metric as module_metric
 import model.model as module_model
 from trainer import Trainer
 from util import Logger, get_instance

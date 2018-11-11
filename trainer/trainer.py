@@ -46,7 +46,7 @@ class Trainer(BaseTrainer):
             batch_size = x.size(0)
             input_size = x.size(-1)
 
-            x_np = np.flip(x.numpy(),0).copy()   #Reverse of copy of numpy array of given tensor
+            x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
 
             x_r = torch.from_numpy(x_np).to(self.device)
 
@@ -76,7 +76,7 @@ class Trainer(BaseTrainer):
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
-            #self.writer.add_scalar('batch_loss', loss.item())
+            # self.writer.add_scalar('batch_loss', loss.item())
             total_recon_loss += recon_loss.item()
             total_emo_loss += emo_loss.item()
             total_loss += loss.item()
@@ -133,7 +133,7 @@ class Trainer(BaseTrainer):
                 input_size = x.size(-1)
                 original_input = x.to(self.device)
 
-                x_np = np.flip(x.numpy(),0).copy()   #Reverse of copy of numpy array of given tensor
+                x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
                 x_r = torch.from_numpy(x_np).to(self.device)
 
                 input_var = x_r.to(self.device)
@@ -157,7 +157,7 @@ class Trainer(BaseTrainer):
                 loss = recon_loss + emo_loss
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
-                #self.writer.add_scalar('loss', loss.item())
+                # self.writer.add_scalar('loss', loss.item())
                 total_recon_loss += recon_loss.item()
                 total_emo_loss += emo_loss.item()
                 total_val_loss += loss.item()
