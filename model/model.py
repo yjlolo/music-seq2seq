@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseRNN, BaseModel
 from util import utils
-    
+
 
 class EncoderRNN(BaseRNN):
     def __init__(self, input_size, hidden_size, n_layers=1, rnn_cell='gru',
@@ -39,7 +39,8 @@ class DecoderRNN(BaseRNN):
         output, hidden = self.rnn(input_var, hidden)
         output = self.out(output)
 
-        return output, hidden
+        #return output, hidden
+        return torch.tanh(output), hidden
 
     def forward(self, inputs, encoder_hidden, train=True, encoder_outputs=None):
         # Attention and the opposite of teacher forcing are not implemented yet
@@ -55,7 +56,7 @@ class DecoderRNN(BaseRNN):
         def feedprevious(inputs, decoder_hidden):
             decoder_input = inputs[:, 0].unsqueeze(1)  # the start-of-sentence dummy
             decoder_output = torch.zeros(inputs[:, 1:].size()).to(inputs.device)
-            print(decoder_output.size())
+
             for di in range(decoder_output.size(1)):
                 decoder_input, decoder_hidden = self.forward_step(decoder_input, decoder_hidden)
                 decoder_output[:, di, :] = decoder_input.squeeze(1)
@@ -82,6 +83,7 @@ class Seq2seq(BaseModel):
         super(Seq2seq, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
+        #self.lin = nn.Linear(256, 256)
 
     def flatten_parameters(self):
         self.encoder.rnn.flatten_parameters()
@@ -89,6 +91,15 @@ class Seq2seq(BaseModel):
 
     def forward(self, input_variable, target_variable, train=True, input_lengths=None):
         encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths)
+        """
+        #print(encoder_hidden.size())
+        encoder_hidden = encoder_hidden.view(encoder_hidden.size(1), -1)
+        #print(encoder_hidden.size())
+        encoder_hidden = torch.tanh(self.lin(encoder_hidden))
+        #print(encoder_hidden.size())
+        encoder_hidden = encoder_hidden.view(1, encoder_hidden.size(0), -1)
+        #print(encoder_hidden.size())
+        """
         result = self.decoder(inputs=target_variable,
                               encoder_hidden=encoder_hidden,
                               encoder_outputs=encoder_outputs,
@@ -108,7 +119,7 @@ if __name__ == '__main__':
         device = torch.device('cpu')
 
     print(device)
-    n_mel = 320
+    n_mel = 64
     hidden_size = 128
     n_layer = 2
     n_workers = 0
@@ -123,7 +134,7 @@ if __name__ == '__main__':
     model.summary()
 
     dl = PMEmoDataLoader(batch_size=2, shuffle=False,
-                         validation_split=0.0, num_workers=0)
+                         validation_split=0.0, num_workers=0, load_transformed='Spec_minmax_fixlen')
     batch = next(iter(dl))
 
     x, y, seqlen, songid, mask = batch[0], batch[1], batch[2], batch[3], batch[4]
@@ -133,6 +144,6 @@ if __name__ == '__main__':
     input_var = x.to(device)
     sos = torch.zeros(batch_size, 1, input_size).to(device)  # begin of sentence
     target_var = torch.cat((sos, input_var), dim=1)
-    outputs, enc_outputs = model(input_var, target_var, seqlen)
+    outputs, enc_outputs = model(input_var, target_var, input_lengths=seqlen, train=False)
 
     print(outputs.size(), enc_outputs.size())

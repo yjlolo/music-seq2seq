@@ -46,12 +46,12 @@ class Trainer(BaseTrainer):
             batch_size = x.size(0)
             input_size = x.size(-1)
 
-            x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
+            #x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
 
-            x_r = torch.from_numpy(x_np).to(self.device)
+            #x_r = torch.from_numpy(x_np).to(self.device)
 
             original_input = x.to(self.device)
-            input_var = x_r.to(self.device)
+            input_var = x.to(self.device)
             centroids = y.type(input_var.type())  # used for loss constraints
             mask = mask.to(self.device)
             eff_len = torch.FloatTensor(seqlen).sum().to(self.device)  # used for loss normalization
@@ -66,14 +66,12 @@ class Trainer(BaseTrainer):
             recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), original_input.view(-1), epoch)
             recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
             # calculate additional constraints
-            try:
-                emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2], epoch)
-                emo_loss = emo_loss.div(batch_size)
-            except:
-                emo_loss = torch.zeros(1).to(self.device)
+            emo_loss = self.loss['Emo_loss'](enc_outputs.view(batch_size, -1), centroids[:, :2], epoch)
+            emo_loss = emo_loss.div(batch_size)
+
             loss = recon_loss + emo_loss
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 2)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
@@ -134,10 +132,10 @@ class Trainer(BaseTrainer):
                 input_size = x.size(-1)
                 original_input = x.to(self.device)
 
-                x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
-                x_r = torch.from_numpy(x_np).to(self.device)
+                #x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
+                #x_r = torch.from_numpy(x_np).to(self.device)
 
-                input_var = x_r.to(self.device)
+                input_var = x.to(self.device)
                 centroids = y.type(input_var.type())  # used for loss constraints
                 mask = mask.to(self.device)
                 eff_len = torch.FloatTensor(seqlen).sum().to(self.device)  # used for loss normalization

@@ -40,6 +40,7 @@
         "type": "PMEmoDataLoader",
         "args": {
             "data_dir": "pmemo_dataset/PMEmo",
+            "load_transformed": "Spec_minmax",
             "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.1,
@@ -51,8 +52,7 @@
         "type": "Adam",
         "args": {
             "lr": 0.001,
-            "weight_decay": 0,
-            "amsgrad": true
+            "weight_decay": 0
         }
     },
 
@@ -80,7 +80,7 @@
         "verbosity": 1,
         "monitor": "val_loss",
         "monitor_mode": "min",
-        "early_stop": 30,
+        "early_stop": 100,
         "start_save_best": 1
     },
     "visualization": {

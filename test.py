@@ -14,7 +14,7 @@ def main(config, resume, figsave=None):
     torch.manual_seed(0)
 
     data_loader = get_instance(module_data, 'data_loader', config)
-    valid_data_loader = data_loader#.split_validation()
+    valid_data_loader = data_loader.split_validation()
 
     list_compose = {i: get_instance(module_model, i, config) for i in config['model_compose']}
     config['arch']['args'] = list_compose
@@ -63,7 +63,6 @@ def forwardpass(data_loader, model, device, figsave):
         song_ids = np.array(list(map(lambda x: x[0].split('/')[-1].split('.')[0], data_loader.dataset.data)))
         songids = song_ids[data_loader.sampler.indices]
         fig_sample = np.random.choice(songids, size=n_sample, replace=False)
-        fig_sample
 
     with torch.no_grad():
         input_feat = []
@@ -74,10 +73,10 @@ def forwardpass(data_loader, model, device, figsave):
             input_size = x.size(-1)
             original_input = x.to(device)
 
-            x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
-            x_r = torch.from_numpy(x_np).to(device)
+            #x_np = np.flip(x.numpy(), 0).copy()  # Reverse of copy of numpy array of given tensor
+            #x_r = torch.from_numpy(x_np).to(device)
 
-            input_var = x_r.to(device)
+            input_var = x.to(device)
             centroids = y.type(input_var.type())  # used for loss constraints
             mask = mask.to(device)
             eff_len = torch.FloatTensor(seqlen).sum().to(device)  # used for loss normalization

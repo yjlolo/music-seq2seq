@@ -66,6 +66,8 @@ def pad_tensor(vec, pad, dim):
     pad_size[dim] = pad - vec.size(dim)
 
     if pad_size[dim] > 0:
-        return torch.cat([vec, torch.zeros(*pad_size)], dim=dim)
+        # when the spectrogram is normalized to (np.min, np.max),
+        # -1 is np.min in the current setting.
+        return torch.cat([vec, torch.zeros(*pad_size) - 1], dim=dim)
     else:
         return vec

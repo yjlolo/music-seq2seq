@@ -9,6 +9,7 @@
     "transform1": {
         "type": "AudioRead",
         "args": {
+            "duration": 5,
             "sr": 22050
         }
     },
@@ -23,7 +24,7 @@
         "args": {
             "n_fft": 2048,
             "hop_size": 1024,
-            "n_band": 128,
+            "n_band": 64,
             "spec_type": "melspec"
         }
     },
@@ -42,5 +43,5 @@
         "type": "ToTensor"
     },
     "save_dir": "../pmemo_dataset/PMEmo/",
-    "save_subdir": "Spec_minmax"
+    "save_subdir": "Spec_minmax_fixlen"
 }
