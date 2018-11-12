@@ -28,11 +28,19 @@
         }
     },
     "transform4": {
+        "type": "MinMaxNorm",
+        "args": {
+            "min_val": -1,
+            "max_val": 1
+        }
+    },
+
+    "transform5": {
         "type": "TransposeNumpy"
     },
-    "transform5": {
+    "transform6": {
         "type": "ToTensor"
     },
     "save_dir": "../pmemo_dataset/PMEmo/",
-    "save_subdir": "Spec"
+    "save_subdir": "Spec_minmax"
 }

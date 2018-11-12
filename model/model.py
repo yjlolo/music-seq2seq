@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseRNN, BaseModel
 from util import utils
-
+    
 
 class EncoderRNN(BaseRNN):
     def __init__(self, input_size, hidden_size, n_layers=1, rnn_cell='gru',
@@ -98,7 +98,6 @@ class Seq2seq(BaseModel):
 
 
 if __name__ == '__main__':
-    import torch
     from data_loader import PMEmoDataLoader
 
     if torch.cuda.is_available():

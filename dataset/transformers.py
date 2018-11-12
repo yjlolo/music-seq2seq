@@ -65,9 +65,27 @@ def spectrogram(x, sr, n_fft, hop_size, n_band, spec_type='melspec'):
                                            hop_length=hop_size, n_mels=n_band)
         # melspectrogram has raised np.abs(S)**power, default power=2
         # so power_to_db is directly applicable
-        S = librosa.core.power_to_db(S)
+        S = librosa.core.power_to_db(S, ref=np.max)
 
     return S
+
+
+class MinMaxNorm():
+    def __init__(self, min_val=0, max_val=1):
+        self.min_val = min_val
+        self.max_val = max_val
+
+    def __call__(self, x):
+        x -= np.mean(x)
+        x_min = np.min(x)
+        x_max = np.max(x)
+        nom = x - x_min
+        den = x_max - x_min
+
+        if abs(den) > 1e-4:
+            return (self.max_val - self.min_val) * (nom / den) + self.min_val
+        else:
+            return nom
 
 
 class TransposeNumpy():
