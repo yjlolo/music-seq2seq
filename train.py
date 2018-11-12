@@ -1,5 +1,6 @@
 import os
 import json
+import random
 import argparse
 import torch
 import data_loader.data_loaders as module_data
@@ -10,6 +11,7 @@ from util import Logger, get_instance
 
 
 def main(config, resume):
+    random.seed(0)
     torch.manual_seed(0)
     train_logger = Logger()
 

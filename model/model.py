@@ -1,4 +1,5 @@
 import random
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseRNN, BaseModel
@@ -26,9 +27,10 @@ class EncoderRNN(BaseRNN):
 
 class DecoderRNN(BaseRNN):
     def __init__(self, input_size, hidden_size, n_layers=1, rnn_cell='gru',
-                 input_dropout_p=0, dropout_p=0):
+                 input_dropout_p=0, dropout_p=0, teacher_forcing_threshold=1):
         super(DecoderRNN, self).__init__(input_size, hidden_size, n_layers, rnn_cell, input_dropout_p, dropout_p)
 
+        self.teacher_forcing_threshold = teacher_forcing_threshold
         self.rnn = self.rnn_cell(input_size, hidden_size, n_layers, batch_first=True, dropout=dropout_p)
         self.out = nn.Linear(self.hidden_size, self.input_size)
 
@@ -39,7 +41,7 @@ class DecoderRNN(BaseRNN):
 
         return output, hidden
 
-    def forward(self, inputs, encoder_hidden, encoder_outputs=None, teacher_forcing_ratio=0):
+    def forward(self, inputs, encoder_hidden, train=True, encoder_outputs=None):
         # Attention and the opposite of teacher forcing are not implemented yet
 
         # if self.rnn_cell is nn.LSTM:
@@ -50,14 +52,27 @@ class DecoderRNN(BaseRNN):
         # max_length = inputs.size(1) - 1
         decoder_hidden = encoder_hidden
 
-        use_teacher_forcing = True if random.random() > teacher_forcing_ratio else False
+        def feedprevious(inputs, decoder_hidden):
+            decoder_input = inputs[:, 0].unsqueeze(1)  # the start-of-sentence dummy
+            decoder_output = torch.zeros(inputs[:, 1:].size()).to(inputs.device)
+            print(decoder_output.size())
+            for di in range(decoder_output.size(1)):
+                decoder_input, decoder_hidden = self.forward_step(decoder_input, decoder_hidden)
+                decoder_output[:, di, :] = decoder_input.squeeze(1)
 
-        if use_teacher_forcing:
-            decoder_input = inputs[:, :-1]
+            return decoder_output, decoder_hidden
 
-            decoder_output, decoder_hidden = self.forward_step(decoder_input, decoder_hidden)
+        if train:
+            use_teacher_forcing = True if random.random() > self.teacher_forcing_threshold else False
+
+            if use_teacher_forcing:
+                decoder_input = inputs[:, :-1]  # the expected decoder output
+                decoder_output, decoder_hidden = self.forward_step(decoder_input, decoder_hidden)
+            else:
+                decoder_output, decoder_hidden = feedprevious(inputs, decoder_hidden)
+
         else:
-            raise NotImplementedError()
+            decoder_output, decoder_hidden = feedprevious(inputs, decoder_hidden)
 
         return decoder_output
 
@@ -72,12 +87,12 @@ class Seq2seq(BaseModel):
         self.encoder.rnn.flatten_parameters()
         self.decoder.rnn.flatten_parameters()
 
-    def forward(self, input_variable, target_variable, input_lengths=None, teacher_forcing_ratio=0):
+    def forward(self, input_variable, target_variable, train=True, input_lengths=None):
         encoder_outputs, encoder_hidden = self.encoder(input_variable, input_lengths)
         result = self.decoder(inputs=target_variable,
                               encoder_hidden=encoder_hidden,
                               encoder_outputs=encoder_outputs,
-                              teacher_forcing_ratio=teacher_forcing_ratio)
+                              train=train)
 
         return result, encoder_hidden
 

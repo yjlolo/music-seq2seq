@@ -14,7 +14,7 @@ def main(config, resume, figsave=None):
     torch.manual_seed(0)
 
     data_loader = get_instance(module_data, 'data_loader', config)
-    valid_data_loader = data_loader.split_validation()
+    valid_data_loader = data_loader#.split_validation()
 
     list_compose = {i: get_instance(module_model, i, config) for i in config['model_compose']}
     config['arch']['args'] = list_compose
@@ -36,7 +36,7 @@ def main(config, resume, figsave=None):
         project_name, date = target_resume[0], target_resume[1]
         fig_dir = os.path.join(args.figure, project_name)
         ensure_dir(fig_dir)
-        plt.savefig(os.path.join(fig_dir, '.'.join([date, 'enc_ign', 'jpg'])))
+        plt.savefig(os.path.join(fig_dir, '.'.join([date, 'jpg'])))
 
     return X
 
@@ -85,7 +85,7 @@ def forwardpass(data_loader, model, device, figsave):
             sos = torch.zeros(batch_size, 1, input_size).to(device)  # start-of-sequence dummy
             target_var = torch.cat((sos, original_input), dim=1)  # only use teacher forcing currently
 
-            output, enc_outputs = model(input_var, target_var, seqlen)
+            output, enc_outputs = model(input_var, target_var, input_lengths=seqlen, train=False)
             input_feat.append(enc_outputs.view(batch_size, -1))
 
             if figsave:

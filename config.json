@@ -31,7 +31,8 @@
             "n_layers": 2,
             "rnn_cell": "gru",
             "input_dropout_p": 0,
-            "dropout_p": 0
+            "dropout_p": 0,
+            "teacher_forcing_threshold": 1.0
         }
     },
     
@@ -66,7 +67,7 @@
     "loss2": {
         "type": "Emo_loss",
         "args": {
-            "effect_epoch": 1,
+            "effect_epoch": 10000,
             "metric": "euclidean",
             "scale": 10
         }
