@@ -6,9 +6,12 @@ The repo will not include the dataset.
 Under construction
 - [x] dataset
 - [x] data loader
+    - [ ] chunks division
 - [x] model
-    - [ ] attention
-    - [ ] regressive inference 
+    - [x] attention
+    - [x] regressive inference 
+    - [ ] Hierarchical RNN
+    - [ ] RCNN
 - [x] trainer
     - [x] extra loss constraints
 - [ ] classifier
