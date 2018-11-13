@@ -61,7 +61,7 @@ class Trainer(BaseTrainer):
 
             # model update
             self.optimizer.zero_grad()
-            output, enc_outputs = self.model(input_var, target_var, input_lengths=seqlen, train=True)
+            (output, attn_score), enc_outputs = self.model(input_var, target_var, input_lengths=seqlen, is_train=True)
             # calculate reconstruction loss
             recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), original_input.view(-1), epoch)
             recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
@@ -143,7 +143,7 @@ class Trainer(BaseTrainer):
                 sos = torch.zeros(batch_size, 1, input_size).to(self.device)  # start-of-sequence dummy
                 target_var = torch.cat((sos, original_input), dim=1)  # only use teacher forcing currently
 
-                output, enc_outputs = self.model(input_var, target_var, input_lengths=seqlen, train=False)
+                (output, attn_score), enc_outputs = self.model(input_var, target_var, input_lengths=seqlen, is_train=False)
                 # calculate reconstruction loss
                 recon_loss = self.loss['MSE_loss'](output.contiguous().view(-1), original_input.view(-1), epoch)
                 recon_loss = recon_loss.mul(mask.view(-1)).sum().div(eff_len).div(input_size)
