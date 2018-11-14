@@ -12,6 +12,7 @@ Problems
     3. no improvement in performance, not using it for now
 
 Research log
+
 Nov. 14
 1. Divide the song-level spectrograms into chunk-level ones allows the model to learn.
 2. the main problem was that the input sequences were too long (information loss in the last hidden states).
