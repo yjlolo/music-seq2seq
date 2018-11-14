@@ -60,9 +60,10 @@ def forwardpass(data_loader, model, device, figsave):
 
         # sample
         np.random.seed(0)
-        song_ids = np.array(list(map(lambda x: x[0].split('/')[-1].split('.')[0], data_loader.dataset.data)))
+        song_ids = np.array(list(map(lambda x: x[0].split('/')[-1].split('.')[0].split('-')[0], data_loader.dataset.data)))
         songids = song_ids[data_loader.sampler.indices]
         fig_sample = np.random.choice(songids, size=n_sample, replace=False)
+        print(fig_sample)
 
     with torch.no_grad():
         input_feat = []
@@ -84,7 +85,7 @@ def forwardpass(data_loader, model, device, figsave):
             sos = torch.zeros(batch_size, 1, input_size).to(device)  # start-of-sequence dummy
             target_var = torch.cat((sos, original_input), dim=1)  # only use teacher forcing currently
 
-            output, enc_outputs = model(input_var, target_var, input_lengths=seqlen, train=False)
+            (output, attn), enc_outputs = model(input_var, target_var, input_lengths=seqlen, is_train=False)
             input_feat.append(enc_outputs.view(batch_size, -1))
 
             if figsave:
@@ -92,7 +93,7 @@ def forwardpass(data_loader, model, device, figsave):
                                                             output.cpu().data.numpy(),
                                                             songid.data.numpy()
                                                             )):
-                    if str(sid) in fig_sample:
+                    if str(sid) in fig_sample and k <= 3:
                         draw(fig, gs, k, x_hat.T)
                         draw(fig, gs, k + n_sample, x_ori.T)
                         k += 1

@@ -13,27 +13,27 @@
     "encoder": {
         "type": "EncoderRNN",
         "args": {
-            "input_size": 128,
+            "input_size": 64,
             "hidden_size": 256,
             "n_layers": 2,
             "rnn_cell": "gru",
             "input_dropout_p": 0,
             "dropout_p": 0,
-            "variable_lengths": true
+            "variable_lengths": false
         }
     },
 
     "decoder": {
         "type": "DecoderRNN",
         "args": {
-            "input_size": 128,
+            "input_size": 64,
             "hidden_size": 256,
             "n_layers": 2,
             "rnn_cell": "gru",
             "input_dropout_p": 0,
             "dropout_p": 0,
             "teacher_forcing_threshold": 1.0,
-            "use_attention": false
+            "use_attention": true
         }
     },
     
@@ -41,7 +41,7 @@
         "type": "PMEmoDataLoader",
         "args": {
             "data_dir": "pmemo_dataset/PMEmo",
-            "load_transformed": "Spec_minmax",
+            "load_transformed": "Spec_chunks",
             "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.1,

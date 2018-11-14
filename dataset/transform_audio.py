@@ -37,9 +37,15 @@ def main(config):
         print("Transforming %d-th data ..." % k)
         data = d[k]
         x, _, songid = data[0], data[1], data[2]
-        p = os.path.join(save_path, '%s.%s' % (songid, config['save_subdir']))
 
-        torch.save(x, p)
+        if isinstance(x, list):
+            for i, x_i in enumerate(x):
+                p = os.path.join(save_path, '%s-%s.%s' % (songid, i, config['save_subdir']))
+                torch.save(x_i, p)
+            x = np.vstack(x)
+        else:
+            p = os.path.join(save_path, '%s.%s' % (songid, config['save_subdir']))
+            torch.save(x, p)
 
         if k in samples_for_draw:
             ax = fig.add_subplot(gs[n_fig])

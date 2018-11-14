@@ -9,7 +9,6 @@
     "transform1": {
         "type": "AudioRead",
         "args": {
-            "duration": 5,
             "sr": 22050
         }
     },
@@ -22,6 +21,7 @@
     "transform3": {
         "type": "Spectrogram",
         "args": {
+            "sr": 22050,
             "n_fft": 2048,
             "hop_size": 1024,
             "n_band": 64,
@@ -29,19 +29,27 @@
         }
     },
     "transform4": {
+        "type": "ChunkDivision",
+        "args": {
+            "duration": 0.5,
+            "sr": 22050,
+            "n_fft": 2048,
+            "hop_size": 1024
+        }
+    },
+    "transform5": {
         "type": "MinMaxNorm",
         "args": {
             "min_val": -1,
             "max_val": 1
         }
     },
-
-    "transform5": {
+    "transform6": {
         "type": "TransposeNumpy"
     },
-    "transform6": {
+    "transform7": {
         "type": "ToTensor"
     },
     "save_dir": "../pmemo_dataset/PMEmo/",
-    "save_subdir": "Spec_minmax_fixlen"
+    "save_subdir": "Spec_chunks"
 }

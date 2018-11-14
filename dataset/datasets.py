@@ -1,6 +1,7 @@
 import os
-import numpy as np
+import warnings
 import csv
+import numpy as np
 from torch.utils.data import Dataset
 from dataset import transformers
 from torchvision import transforms
@@ -26,11 +27,12 @@ class PMEmodata(Dataset):
         # print(len(os.listdir(path_to_data)))
         path_to_data = [os.path.join(path_to_data, i)
                         for i in os.listdir(path_to_data)
-                        if i.split('.')[0] in sval[:, 0]]
+                        if i.split('.')[0].split('-')[0] in sval[:, 0]]
 
         # print(len(path_to_data))
         # print(len(sval), len(saro))
-        assert len(path_to_data) == len(sval) == len(saro)
+        if not len(path_to_data) == len(sval) == len(saro):
+            warnings.warn("Number of data doesn't match up annotations; you can ignore if chunks are used.")
 
         self.path_to_dataset = path_to_dataset
         self.path_to_data = path_to_data
@@ -63,11 +65,16 @@ class PMEmodata(Dataset):
         collect = []
         for i, j in zip(self.static_val, self.static_aro):
             match = [k for k in self.path_to_data
-                     if k.split('/')[-1].split('.')[0] == i[0]]
-            assert len(match) == 1
-            collect.append((match[0], i, j))
+                     if k.split('/')[-1].split('.')[0].split('-')[0] == i[0] == j[0]]
 
-        return collect
+            if len(match) == 1:
+                collect.append((match[0], i, j))
+            else:
+                warnings.warn("More than one data have same id; you can ignore if chunks are used.")
+                for l in match:
+                    collect.append((l, i, j))
+
+        return sorted(collect)
 
     def __len__(self):
         return len(self.data)
@@ -93,7 +100,7 @@ if __name__ == '__main__':
     print(d[0])
     print(d[1])
     print(d[2])
-
+    """
     d_t = PMEmodata(transform=transforms.Compose([
         transformers.AudioRead(sr=22050),
         transformers.Zscore(divide_sigma=False),
@@ -107,3 +114,13 @@ if __name__ == '__main__':
     print(d_t[0], "\tSpectrogram size: {}".format(d_t[0][0].size()))
     print(d_t[1], "\tSpectrogram size: {}".format(d_t[1][0].size()))
     print(d_t[2], "\tSpectrogram size: {}".format(d_t[2][0].size()))
+    """
+    d_t = PMEmodata(transform=transforms.Compose([
+        transformers.AudioRead(sr=22050),
+        transformers.Zscore(divide_sigma=False),
+        transformers.Spectrogram(sr=22050, n_fft=1024, hop_size=512, n_band=64,
+                                 spec_type='melspec'),
+        transformers.ChunkDivision(duration=0.5, sr=22050, n_fft=2048, hop_size=1024),
+        transformers.TransposeNumpy(),
+        transformers.ToTensor()
+    ]))

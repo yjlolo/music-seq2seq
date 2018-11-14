@@ -76,29 +76,65 @@ class MinMaxNorm():
         self.max_val = max_val
 
     def __call__(self, x):
-        x -= np.mean(x)
-        x_min = np.min(x)
-        x_max = np.max(x)
-        nom = x - x_min
-        den = x_max - x_min
-
-        if abs(den) > 1e-4:
-            return (self.max_val - self.min_val) * (nom / den) + self.min_val
+        if isinstance(x, list):
+            return [minmaxNorm(x_i, min_val=self.min_val, max_val=self.max_val) for x_i in x]
         else:
-            return nom
+            return minmaxNorm(x, min_val=self.min_val, max_val=self.max_val)
+
+
+def minmaxNorm(x, min_val=0, max_val=1):
+    x -= np.mean(x)
+    x_min = np.min(x)
+    x_max = np.max(x)
+    nom = x - x_min
+    den = x_max - x_min
+
+    if abs(den) > 1e-4:
+            return (max_val - min_val) * (nom / den) + min_val
+    else:
+        return nom
+
+
+class ChunkDivision():
+    def __init__(self, duration=0.5, sr=22050, n_fft=1024, hop_size=160):
+        self.duration = duration
+        self.sr = sr
+        self.n_fft = n_fft
+        self.hop_size = hop_size
+        self.chunk_length_frame = int(sr * duration)
+        self.chunk_length_window = self.chunk_length_frame // hop_size
+
+    def __call__(self, x):
+        num_window = x.shape[1]
+        indices = np.arange(self.chunk_length_window, num_window, self.chunk_length_window)
+        x_chunk = np.split(x, indices_or_sections=indices, axis=1)
+        x_chunk = [x_i for x_i in x_chunk if x_i.shape[1] == self.chunk_length_window]
+
+        return x_chunk
 
 
 class TransposeNumpy():
     def __call__(self, x):
+        if isinstance(x, list):
+            return [transposeNumpy(x_i) for x_i in x]
+        else:
+            return transposeNumpy(x)
 
-        return x.T
+
+def transposeNumpy(x):
+    return x.T
 
 
 class ToTensor():
     def __call__(self, x):
-        y = torch.from_numpy(x).type('torch.FloatTensor')
+        if isinstance(x, list):
+            return [toTensor(x_i) for x_i in x]
+        else:
+            return toTensor(x)
 
-        return y
+
+def toTensor(x):
+    return torch.from_numpy(x).type('torch.FloatTensor')
 
 
 class LoadTensor():
