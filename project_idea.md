@@ -13,7 +13,7 @@ Problems
 
 Research log
 
-Nov. 14
+18 Nov. 14 
 1. Divide the song-level spectrograms into chunk-level ones allows the model to learn.
 2. the main problem was that the input sequences were too long (information loss in the last hidden states).
 3. One interesting observation is attention mechnism may not help representation learning.
