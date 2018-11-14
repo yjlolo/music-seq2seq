@@ -6,7 +6,7 @@ The repo will not include the dataset.
 Under construction
 - [x] dataset
 - [x] data loader
-    - [ ] chunks division
+    - [x] chunks division
 - [x] model
     - [x] attention
     - [x] regressive inference 
